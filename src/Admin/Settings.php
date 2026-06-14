@@ -13,11 +13,11 @@ use Notice\Service\SettingsRepository;
  * Admin settings page registered under the WooCommerce menu.
  *
  * Stores everything in the `notice_settings` option (array): the master switch,
- * the announcement message (limited safe HTML), an optional CTA link, colours,
- * placement, the optional schedule and the dismiss behaviour. All output is
- * escaped; all input is sanitised and clamped on save (sanitize_hex_color for
- * colours, wp_kses for the message, sanitize_text_field elsewhere). The save
- * capability is aligned to manage_woocommerce.
+ * the announcement message (limited safe HTML), an optional CTA link, colours
+ * and the dismiss behaviour. All output is escaped; all input is sanitised and
+ * clamped on save (sanitize_hex_color for colours, wp_kses for the message,
+ * sanitize_text_field elsewhere). The save capability is aligned to
+ * manage_woocommerce.
  */
 final class Settings implements HasHooks
 {
@@ -135,7 +135,7 @@ final class Settings implements HasHooks
                 <div>
                     <h2><?php esc_html_e('One bar. Store-wide attention.', 'notice'); ?></h2>
                     <p>
-                        <?php esc_html_e('Announce a sale, a shipping cut-off or any message across your whole store with a single bar at the top of every page. Add a call-to-action, pick your colours, schedule it in advance and let shoppers dismiss it. The live preview on the right updates as you type.', 'notice'); ?>
+                        <?php esc_html_e('Announce a sale, a shipping cut-off or any message across your whole store with a single bar at the top of every page. Add a call-to-action, pick your colours and let shoppers dismiss it. The live preview on the right updates as you type.', 'notice'); ?>
                     </p>
                 </div>
             </div>
@@ -149,7 +149,6 @@ final class Settings implements HasHooks
                         $this->renderMessageCard($settings);
                         $this->renderLinkCard($settings);
                         $this->renderAppearanceCard($settings);
-                        $this->renderScheduleCard($settings);
                         $this->renderBehaviourCard($settings);
                         ?>
                         <?php submit_button(__('Save changes', 'notice')); ?>
@@ -289,105 +288,16 @@ final class Settings implements HasHooks
      */
     private function renderAppearanceCard(array $settings): void
     {
-        $position = in_array($settings['position'] ?? 'top', SettingsRepository::POSITIONS, true)
-            ? (string) $settings['position']
-            : 'top';
         ?>
         <div class="notice-admin__card">
             <h2><?php esc_html_e('Appearance', 'notice'); ?></h2>
             <table class="form-table" role="presentation">
                 <tbody>
-                    <tr>
-                        <th scope="row">
-                            <label for="notice_position"><?php esc_html_e('Position', 'notice'); ?></label>
-                            <?php $this->help(__('Sticky keeps the bar pinned to the top as shoppers scroll. Static shows it once at the very top of the page and scrolls away with the content.', 'notice')); ?>
-                        </th>
-                        <td>
-                            <select id="notice_position" name="<?php echo esc_attr(SettingsRepository::OPTION); ?>[position]">
-                                <?php
-                                $labels = [
-                                    'top'    => __('Sticky (pinned to top)', 'notice'),
-                                    'static' => __('Static (scrolls with page)', 'notice'),
-                                ];
-                                foreach (SettingsRepository::POSITIONS as $value) :
-                                    ?>
-                                    <option value="<?php echo esc_attr($value); ?>" <?php selected($position, $value); ?>>
-                                        <?php echo esc_html($labels[$value] ?? $value); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                    </tr>
                     <?php
                     $this->colorRow('bg_color', __('Background colour', 'notice'), $settings, '#1e1e1e', __('The bar background. Pick a colour with strong contrast against the text colour for readability.', 'notice'));
                     $this->colorRow('text_color', __('Text colour', 'notice'), $settings, '#ffffff', __('The message text colour.', 'notice'));
                     $this->colorRow('link_color', __('Accent colour', 'notice'), $settings, '#ffd166', __('Used for links inside the message and for the call-to-action button.', 'notice'));
                     ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
-    }
-
-    /**
-     * @param array<string, mixed> $settings
-     */
-    private function renderScheduleCard(array $settings): void
-    {
-        ?>
-        <div class="notice-admin__card">
-            <h2><?php esc_html_e('Schedule', 'notice'); ?></h2>
-            <p class="description">
-                <?php esc_html_e('Optional. Show the bar only between a start and end time. Times use your site’s timezone.', 'notice'); ?>
-            </p>
-            <table class="form-table" role="presentation">
-                <tbody>
-                    <tr>
-                        <th scope="row">
-                            <?php esc_html_e('Enable schedule', 'notice'); ?>
-                            <?php $this->help(__('When off, the bar shows whenever it is enabled. When on, it only shows within the window below.', 'notice')); ?>
-                        </th>
-                        <td>
-                            <label for="notice_schedule_enabled">
-                                <input
-                                    type="checkbox"
-                                    id="notice_schedule_enabled"
-                                    name="<?php echo esc_attr(SettingsRepository::OPTION); ?>[schedule_enabled]"
-                                    value="1"
-                                    <?php checked((bool) ($settings['schedule_enabled'] ?? false), true); ?>
-                                />
-                                <?php esc_html_e('Only show the bar during the scheduled window.', 'notice'); ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="notice_start_datetime"><?php esc_html_e('Start', 'notice'); ?></label>
-                            <?php $this->help(__('The bar appears at this date and time. Leave blank to start immediately.', 'notice')); ?>
-                        </th>
-                        <td>
-                            <input
-                                type="datetime-local"
-                                id="notice_start_datetime"
-                                name="<?php echo esc_attr(SettingsRepository::OPTION); ?>[start_datetime]"
-                                value="<?php echo esc_attr((string) ($settings['start_datetime'] ?? '')); ?>"
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="notice_end_datetime"><?php esc_html_e('End', 'notice'); ?></label>
-                            <?php $this->help(__('The bar disappears after this date and time. Leave blank to run with no end.', 'notice')); ?>
-                        </th>
-                        <td>
-                            <input
-                                type="datetime-local"
-                                id="notice_end_datetime"
-                                name="<?php echo esc_attr(SettingsRepository::OPTION); ?>[end_datetime]"
-                                value="<?php echo esc_attr((string) ($settings['end_datetime'] ?? '')); ?>"
-                            />
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -580,11 +490,6 @@ final class Settings implements HasHooks
             $raw = [];
         }
 
-        $position = isset($raw['position']) ? sanitize_key((string) $raw['position']) : 'top';
-        if (! in_array($position, SettingsRepository::POSITIONS, true)) {
-            $position = 'top';
-        }
-
         $sanitized = [
             'enabled' => ! empty($raw['enabled']),
 
@@ -596,40 +501,14 @@ final class Settings implements HasHooks
             'link_label'   => isset($raw['link_label']) ? sanitize_text_field((string) $raw['link_label']) : '',
             'link_new_tab' => ! empty($raw['link_new_tab']),
 
-            'position' => $position,
-
             'bg_color'   => $this->color($raw['bg_color'] ?? '', '#1e1e1e'),
             'text_color' => $this->color($raw['text_color'] ?? '', '#ffffff'),
             'link_color' => $this->color($raw['link_color'] ?? '', '#ffd166'),
 
             'dismissible'  => ! empty($raw['dismissible']),
             'dismiss_days' => max(0, isset($raw['dismiss_days']) ? (int) $raw['dismiss_days'] : 7),
-
-            'schedule_enabled' => ! empty($raw['schedule_enabled']),
-            'start_datetime'   => $this->datetime($raw['start_datetime'] ?? ''),
-            'end_datetime'     => $this->datetime($raw['end_datetime'] ?? ''),
         ];
 
         return (array) apply_filters('notice_sanitize_settings', $sanitized, $raw);
-    }
-
-    /**
-     * Sanitise a datetime-local value to the canonical `Y-m-d\TH:i` form, or ''.
-     */
-    private function datetime(mixed $value): string
-    {
-        $value = sanitize_text_field((string) $value);
-        if ('' === $value) {
-            return '';
-        }
-
-        $normalized = str_replace('T', ' ', $value);
-        $timestamp  = strtotime($normalized);
-
-        if (false === $timestamp) {
-            return '';
-        }
-
-        return gmdate('Y-m-d\TH:i', $timestamp);
     }
 }

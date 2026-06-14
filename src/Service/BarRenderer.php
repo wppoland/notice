@@ -13,9 +13,8 @@ use Notice\Contract\HasHooks;
  *
  * Prints the bar at the very top of <body> (wp_body_open) and enqueues a tiny,
  * dependency-free stylesheet and dismissal script — only when the bar is
- * actually active, so disabled or out-of-schedule states add zero front-end
- * weight. All output is escaped; the message is run through wp_kses with the
- * repository's allow-list.
+ * actually active, so a disabled bar adds zero front-end weight. All output is
+ * escaped; the message is run through wp_kses with the repository's allow-list.
  */
 final class BarRenderer implements HasHooks
 {
@@ -96,10 +95,6 @@ final class BarRenderer implements HasHooks
      */
     private function buildView(array $settings): array
     {
-        $position = in_array($settings['position'] ?? 'top', SettingsRepository::POSITIONS, true)
-            ? (string) $settings['position']
-            : 'top';
-
         $linkUrl   = (string) ($settings['link_url'] ?? '');
         $linkLabel = (string) ($settings['link_label'] ?? '');
         $hasLink   = '' !== $linkUrl && '' !== $linkLabel;
@@ -109,7 +104,6 @@ final class BarRenderer implements HasHooks
         return [
             'message'        => (string) ($settings['message'] ?? ''),
             'allowed_html'   => $this->settings->allowedMessageHtml(),
-            'position'       => $position,
             'bg_color'       => $this->color($settings['bg_color'] ?? '', '#1e1e1e'),
             'text_color'     => $this->color($settings['text_color'] ?? '', '#ffffff'),
             'link_color'     => $this->color($settings['link_color'] ?? '', '#ffd166'),

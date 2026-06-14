@@ -28,10 +28,6 @@ return [
     'link_label'   => '',
     'link_new_tab' => false,
 
-    // Placement: a fixed bar pinned to the top, or a static bar that sits inline
-    // at the very top of the page. 'top' = sticky; 'static' = inline.
-    'position' => 'top',
-
     // Colours. Stored as hex; sanitised with sanitize_hex_color on save.
     'bg_color'   => '#1e1e1e',
     'text_color' => '#ffffff',
@@ -41,10 +37,4 @@ return [
     // remembered for `dismiss_days` days (localStorage, no cookies/PII).
     'dismissible'  => true,
     'dismiss_days' => 7,
-
-    // Optional schedule. When off the bar is always on (subject to `enabled`).
-    // Values are `Y-m-d\TH:i` strings in site time, compared with current_time().
-    'schedule_enabled' => false,
-    'start_datetime'   => '',
-    'end_datetime'     => '',
 ];

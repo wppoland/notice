@@ -13,7 +13,6 @@
  *
  * @var string                                              $message
  * @var array<string, array<string, array<string, mixed>>>  $allowed_html
- * @var string                                              $position
  * @var string                                              $bg_color
  * @var string                                              $text_color
  * @var string                                              $link_color
@@ -36,11 +35,9 @@ $notice_style = sprintf(
     esc_attr($text_color),
     esc_attr($link_color),
 );
-
-$notice_classes = 'notice-bar notice-bar--' . sanitize_html_class($position);
 ?>
 <div
-	class="<?php echo esc_attr($notice_classes); ?>"
+	class="notice-bar"
 	role="region"
 	aria-label="<?php esc_attr_e('Site announcement', 'notice'); ?>"
 	style="<?php echo esc_attr($notice_style); ?>"
