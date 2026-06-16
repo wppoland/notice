@@ -291,6 +291,9 @@ final class Settings implements HasHooks
         ?>
         <div class="notice-admin__card">
             <h2><?php esc_html_e('Appearance', 'notice'); ?></h2>
+            <p class="description">
+                <?php esc_html_e('The defaults are a ready-to-use palette: a near-black bar, white text and a warm amber accent — readable on any theme with no tuning. Adjust them only if you want the bar to match your brand.', 'notice'); ?>
+            </p>
             <table class="form-table" role="presentation">
                 <tbody>
                     <?php

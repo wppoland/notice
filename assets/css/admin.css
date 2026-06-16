@@ -8,7 +8,18 @@
  */
 
 .notice-admin {
-	--notice-a-accent: #2271b1;
+	/*
+	 * Family-brand accent. The storefront bar's signal colour is amber
+	 * (--notice-link #ffd166). Raw #ffd166 on white is only 1.44:1 — far below
+	 * AA — so on the light admin surface we use a darkened amber that keeps the
+	 * family identity while meeting WCAG AA: #8a5a00 scores 5.93:1 on #fff and
+	 * 5.20:1 on the #f0f0f1 admin canvas (and 5.93:1 for white text on it). In
+	 * dark mode the surface flips, so the true brand amber #ffd166 is restored
+	 * (11.02:1 on the #1d2327 card). The accent appears only as the intro rail
+	 * and the inline-help glyph — restraint over flourish.
+	 */
+	--notice-a-accent: #8a5a00;
+	--notice-a-accent-fg: #fff;
 	--notice-a-radius: 10px;
 	--notice-a-radius-sm: 6px;
 	--notice-a-gap: clamp(1rem, 2vw, 1.5rem);
@@ -93,7 +104,7 @@
 	inline-size: 1.25rem;
 	block-size: 1.25rem;
 	padding: 0;
-	color: var(--notice-a-help-fg);
+	color: var(--notice-a-accent-fg);
 	background: var(--notice-a-accent);
 	border: 0;
 	border-radius: 50%;
@@ -103,9 +114,13 @@
 	cursor: help;
 }
 
-.notice-admin__help:hover,
-.notice-admin__help:focus-visible {
+.notice-admin__help:hover {
 	filter: brightness(1.1);
+}
+
+.notice-admin__help:focus-visible {
+	outline: 2px solid var(--notice-a-accent);
+	outline-offset: 2px;
 }
 
 .notice-admin__tip {
@@ -199,6 +214,14 @@
 /* Dark-mode aware: respect the admin scheme where the browser reports it. */
 @media (prefers-color-scheme: dark) {
 	.notice-admin {
+		/*
+		 * On the dark card the true brand amber clears AA comfortably
+		 * (#ffd166 = 11.02:1 on #1d2327), so the family colour is restored.
+		 * The help glyph then needs dark text on amber (11.02:1) rather than
+		 * white.
+		 */
+		--notice-a-accent: #ffd166;
+		--notice-a-accent-fg: #1d2327;
 		--notice-a-card-bg: #1d2327;
 		--notice-a-card-border: #3c434a;
 		--notice-a-muted: #a7aaad;
