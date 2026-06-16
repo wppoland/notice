@@ -66,6 +66,10 @@ dismissal lasts (0 = forever). Editing the message text re-shows the bar to ever
 No. The CSS and dismissal script are only enqueued when the bar is actually active,
 and the markup is plain HTML. There is no front-end JavaScript framework.
 
+= Does the bar work on mobile? =
+
+Yes. The bar spans the viewport width and the dismiss control stays reachable on small screens.
+
 == Screenshots ==
 
 1. The announcement bar on a storefront.
