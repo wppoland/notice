@@ -95,6 +95,18 @@ final class SettingsRepository
 
         $message = trim(wp_strip_all_tags((string) ($settings['message'] ?? '')));
 
-        return '' !== $message;
+        if ('' === $message) {
+            return false;
+        }
+
+        /**
+         * Filter whether the announcement bar should render on this request.
+         *
+         * PRO and custom code can narrow visibility by page, role or segment.
+         *
+         * @param bool                 $active   Whether base settings allow the bar.
+         * @param array<string, mixed> $settings Resolved plugin settings.
+         */
+        return (bool) apply_filters('notice/bar_active', true, $settings);
     }
 }
