@@ -13,13 +13,17 @@ A dismissible store-wide announcement bar for WooCommerce: message, link and col
 
 == Description ==
 
-Notice adds a clean, fast announcement bar to the top of your WooCommerce store.
-Use it to promote a sale, a free-shipping threshold, a shipping cut-off or any
-store-wide message — with an optional call-to-action button and your own colours.
+Notice adds one announcement bar to the top of your WooCommerce store. Use it to
+promote a sale, a free-shipping threshold, a shipping cut-off or any store-wide
+message, with an optional call-to-action button and your own colours.
 
-The bar is pinned to the top of the page, rendered server-side, and ships a tiny,
-dependency-free stylesheet. Nothing loads on the front end unless the bar is
-actually active, so a disabled bar adds zero weight.
+The bar is rendered server-side at `wp_body_open` and ships a small,
+dependency-free stylesheet. The CSS loads only when the bar is enabled and has a
+message, and the dismissal script only when the bar is also dismissible, so a
+disabled bar adds nothing to your pages.
+
+The plugin is developed in the open. Source and bug reports:
+https://github.com/wppoland/notice
 
 = Features =
 

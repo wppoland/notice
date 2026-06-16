@@ -1,6 +1,6 @@
 # Notice
 
-Notice adds a dismissible, store-wide announcement bar to your WooCommerce site — perfect for sales, shipping notices and promos. Set a message, an optional call-to-action link and custom colours, and let shoppers dismiss it.
+Notice adds a dismissible, store-wide announcement bar to your WooCommerce site for sales, shipping notices and promos. Set a message, an optional call-to-action link and custom colours, and let shoppers dismiss it.
 
 ## Features
 
