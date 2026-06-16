@@ -49,6 +49,7 @@ $notice_style = sprintf(
 	<?php endif; ?>
 >
 	<div class="notice-bar__inner">
+		<span class="notice-bar__signal" aria-hidden="true"></span>
 		<p class="notice-bar__message">
 			<?php echo wp_kses($message, $allowed_html); ?>
 		</p>

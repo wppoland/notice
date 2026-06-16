@@ -7,12 +7,25 @@
  * to the top and reserves no extra space until it renders, so there is no layout
  * shift beyond the bar's own height. Motion is opt-in and disabled under
  * prefers-reduced-motion.
+ *
+ * Craft: the bar is the store's public voice — a herald going on air. A small
+ * "live" signal pip breathes beside the message (the lit broadcast lamp), and a
+ * single sweep of signal-gold light travels the bar the first time it appears
+ * (the announcement going out over the wire). Dismissing it "signs off": the bar
+ * collapses its own height instead of vanishing abruptly. Everything is grounded
+ * in the bar's own accent colour (--notice-link) and degrades to a plain, still
+ * bar under reduced motion or when the pip is not present.
  */
 
 .notice-bar {
 	--notice-bg: #1e1e1e;
 	--notice-fg: #fff;
 	--notice-link: #ffd166;
+
+	/* The "on air" signal colour: the bar's own accent, reused so re-skinning
+	   the bar re-skins the broadcast lamp and the light sweep at once. */
+	--notice-signal: var(--notice-link);
+
 	--notice-pad-block: clamp(0.55rem, 1.5vw, 0.85rem);
 	--notice-pad-inline: clamp(1rem, 4vw, 2.5rem);
 	--notice-gap: clamp(0.5rem, 2vw, 1rem);
@@ -26,6 +39,7 @@
 	justify-content: center;
 	box-sizing: border-box;
 	inline-size: 100%;
+	overflow: hidden;
 	padding: var(--notice-pad-block) var(--notice-pad-inline);
 	color: var(--notice-fg);
 	background: var(--notice-bg);
@@ -34,13 +48,82 @@
 	text-align: center;
 }
 
+/* The single light sweep — a broadcast signal passing through the bar once on
+   first reveal. Pure overlay (no layout cost), tinted by the signal colour, and
+   only ever runs when the JS adds .is-live (so it never plays for a returning
+   visitor whose bar was already on air). */
+.notice-bar::before {
+	content: "";
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	inline-size: 45%;
+	pointer-events: none;
+	background: linear-gradient(
+		100deg,
+		transparent 0%,
+		color-mix(in srgb, var(--notice-signal) 22%, transparent) 50%,
+		transparent 100%
+	);
+	opacity: 0;
+	transform: translateX(-160%);
+}
+
+.notice-bar.is-live::before {
+	animation: notice-sweep 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.12s 1;
+}
+
+@keyframes notice-sweep {
+	0% {
+		opacity: 0;
+		transform: translateX(-160%);
+	}
+
+	12% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateX(320%);
+	}
+}
+
 .notice-bar__inner {
+	position: relative;
+	z-index: 1;
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--notice-gap);
 	align-items: center;
 	justify-content: center;
 	min-inline-size: 0;
+}
+
+/* The "on air" lamp — a small breathing pip that marks the message as live.
+   It reserves a fixed size so it never shifts text, and it sits inline before
+   the message via the inner flow. */
+.notice-bar__signal {
+	flex: 0 0 auto;
+	inline-size: 0.55rem;
+	block-size: 0.55rem;
+	border-radius: 50%;
+	background: var(--notice-signal);
+	box-shadow: 0 0 0 0 color-mix(in srgb, var(--notice-signal) 70%, transparent);
+	animation: notice-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes notice-breathe {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--notice-signal) 60%, transparent);
+		opacity: 0.85;
+	}
+
+	50% {
+		box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--notice-signal) 0%, transparent);
+		opacity: 1;
+	}
 }
 
 .notice-bar__message {
@@ -75,6 +158,7 @@
 	position: absolute;
 	inset-block-start: 50%;
 	inset-inline-end: clamp(0.5rem, 2vw, 1rem);
+	z-index: 2;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -104,6 +188,22 @@
 	outline-offset: 2px;
 }
 
+/* Sign-off: when JS adds .is-signing-off the bar collapses its own height and
+   fades out (the broadcast going off air) before it is removed from the DOM.
+   This only ever reclaims the bar's own space — no shift beyond its height. */
+.notice-bar.is-signing-off {
+	overflow: hidden;
+	transition:
+		opacity 0.22s ease,
+		transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+		max-block-size 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+		padding-block 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+	max-block-size: 0;
+	padding-block: 0;
+	opacity: 0;
+	transform: translateY(-30%);
+}
+
 /* Keep the message clear of the close button on small screens. */
 @media (max-width: 600px) {
 	.notice-bar {
@@ -120,5 +220,20 @@
 	.notice-bar__cta:hover,
 	.notice-bar__cta:focus-visible {
 		transform: none;
+	}
+
+	/* No breathing lamp, no light sweep, no collapse animation: the bar shows
+	   and hides plainly. */
+	.notice-bar__signal {
+		animation: none;
+		opacity: 1;
+	}
+
+	.notice-bar.is-live::before {
+		animation: none;
+	}
+
+	.notice-bar.is-signing-off {
+		transition: none;
 	}
 }
