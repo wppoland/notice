@@ -33,11 +33,13 @@ final class BarRenderer implements HasHooks
     }
 
     /**
-     * Enqueue the front-end assets only when the bar will render.
+     * Enqueue the front-end assets only when a bar will render.
      */
     public function enqueueAssets(): void
     {
-        if (! $this->settings->isActive()) {
+        $bars = $this->settings->activeBars();
+
+        if ([] === $bars) {
             return;
         }
 
@@ -48,7 +50,14 @@ final class BarRenderer implements HasHooks
             \Notice\VERSION,
         );
 
-        $dismissible = ! empty($this->settings->all()['dismissible']);
+        $dismissible = false;
+
+        foreach ($bars as $bar) {
+            if (! empty($bar['settings']['dismissible'])) {
+                $dismissible = true;
+                break;
+            }
+        }
 
         if ($dismissible) {
             wp_enqueue_script(
@@ -62,29 +71,31 @@ final class BarRenderer implements HasHooks
     }
 
     /**
-     * Render the bar. Guards every state so it hides rather than render broken.
+     * Render every active bar. Guards every state so it hides rather than render broken.
      */
     public function render(): void
     {
-        if (! $this->settings->isActive()) {
+        $bars = $this->settings->activeBars();
+
+        if ([] === $bars) {
             return;
         }
 
-        $settings = $this->settings->all();
         $template = NOTICE_DIR . 'templates/bar.php';
 
         if (! is_readable($template)) {
             return;
         }
 
-        // Data passed to the template, pre-computed and escaped at the edge.
-        $view = $this->buildView($settings);
+        foreach ($bars as $bar) {
+            $view = $this->buildView($bar['settings'], $bar['id']);
 
-        (static function (array $view) use ($template): void {
-            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template-scope local.
-            extract($view, EXTR_SKIP);
-            require $template;
-        })($view);
+            (static function (array $view) use ($template): void {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template-scope local.
+                extract($view, EXTR_SKIP);
+                require $template;
+            })($view);
+        }
     }
 
     /**
@@ -93,7 +104,7 @@ final class BarRenderer implements HasHooks
      * @param array<string, mixed> $settings
      * @return array<string, mixed>
      */
-    private function buildView(array $settings): array
+    private function buildView(array $settings, string $barId): array
     {
         $linkUrl   = (string) ($settings['link_url'] ?? '');
         $linkLabel = (string) ($settings['link_label'] ?? '');
@@ -102,6 +113,7 @@ final class BarRenderer implements HasHooks
         $dismissDays = max(0, (int) ($settings['dismiss_days'] ?? 0));
 
         return [
+            'bar_id'         => $barId,
             'message'        => (string) ($settings['message'] ?? ''),
             'allowed_html'   => $this->settings->allowedMessageHtml(),
             'bg_color'       => $this->color($settings['bg_color'] ?? '', '#1e1e1e'),
@@ -115,7 +127,7 @@ final class BarRenderer implements HasHooks
             'dismiss_days'   => $dismissDays,
             // A version-stamped storage key invalidates a remembered dismissal
             // whenever the message changes, so a new announcement always shows.
-            'storage_key'    => 'notice_dismissed_' . substr(md5((string) ($settings['message'] ?? '')), 0, 8),
+            'storage_key'    => 'notice_dismissed_' . $barId . '_' . substr(md5((string) ($settings['message'] ?? '')), 0, 8),
         ];
     }
 

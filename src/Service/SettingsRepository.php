@@ -82,13 +82,99 @@ final class SettingsRepository
     }
 
     /**
-     * Whether the bar should render on the front end right now: enabled and with
-     * a non-empty message.
+     * Whether any announcement bar should render on the front end right now.
      */
     public function isActive(): bool
     {
-        $settings = $this->all();
+        return [] !== $this->activeBars();
+    }
 
+    /**
+     * Bars that should render on this request.
+     *
+     * @return list<array{id: string, settings: array<string, mixed>}>
+     */
+    public function activeBars(): array
+    {
+        $active = [];
+
+        foreach ($this->resolveBars() as $bar) {
+            if (! is_array($bar)) {
+                continue;
+            }
+
+            $id       = sanitize_key((string) ($bar['id'] ?? 'default'));
+            $settings = is_array($bar['settings'] ?? null) ? $bar['settings'] : [];
+
+            if ('' === $id || ! $this->isBarActive($settings, $id)) {
+                continue;
+            }
+
+            $active[] = [
+                'id'       => $id,
+                'settings' => $settings,
+            ];
+        }
+
+        return $active;
+    }
+
+    /**
+     * Candidate bars before per-request visibility checks.
+     *
+     * @return list<array{id: string, settings: array<string, mixed>}>
+     */
+    public function resolveBars(): array
+    {
+        $bars = [
+            [
+                'id'       => 'default',
+                'settings' => $this->all(),
+            ],
+        ];
+
+        /**
+         * Filter the announcement bars Notice will consider rendering.
+         *
+         * @param list<array{id: string, settings: array<string, mixed>}> $bars
+         */
+        $filtered = apply_filters('notice/bars', $bars);
+
+        if (! is_array($filtered)) {
+            return $bars;
+        }
+
+        $normalised = [];
+
+        foreach ($filtered as $bar) {
+            if (! is_array($bar)) {
+                continue;
+            }
+
+            $id = sanitize_key((string) ($bar['id'] ?? ''));
+
+            if ('' === $id) {
+                continue;
+            }
+
+            $settings = is_array($bar['settings'] ?? null) ? $bar['settings'] : [];
+
+            $normalised[] = [
+                'id'       => $id,
+                'settings' => $settings,
+            ];
+        }
+
+        return [] !== $normalised ? $normalised : $bars;
+    }
+
+    /**
+     * Whether a single bar should render from its settings.
+     *
+     * @param array<string, mixed> $settings
+     */
+    private function isBarActive(array $settings, string $barId): bool
+    {
         if (empty($settings['enabled'])) {
             return false;
         }
@@ -100,13 +186,14 @@ final class SettingsRepository
         }
 
         /**
-         * Filter whether the announcement bar should render on this request.
+         * Filter whether an announcement bar should render on this request.
          *
          * PRO and custom code can narrow visibility by page, role or segment.
          *
          * @param bool                 $active   Whether base settings allow the bar.
-         * @param array<string, mixed> $settings Resolved plugin settings.
+         * @param array<string, mixed> $settings Resolved bar settings.
+         * @param string               $barId    Stable bar identifier.
          */
-        return (bool) apply_filters('notice/bar_active', true, $settings);
+        return (bool) apply_filters('notice/bar_active', true, $settings, $barId);
     }
 }

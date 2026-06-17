@@ -4,7 +4,7 @@ Tags: woocommerce, announcement bar, notification bar, promo bar, sale banner
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 Requires Plugins: woocommerce
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -76,6 +76,9 @@ Yes. The bar spans the viewport width and the dismiss control stays reachable on
 2. The settings screen with a live preview.
 
 == Changelog ==
+
+= 0.1.2 =
+* Multi-bar support via `notice/bars` filter; `notice/bar_active` now receives a bar id. Front-end dismissal handles stacked bars.
 
 = 0.1.1 =
 * Add `notice/bar_active` filter so PRO and custom code can narrow bar visibility.

@@ -11,6 +11,7 @@
  *
  * Available view variables:
  *
+ * @var string                                              $bar_id
  * @var string                                              $message
  * @var array<string, array<string, array<string, mixed>>>  $allowed_html
  * @var string                                              $bg_color
@@ -41,6 +42,7 @@ $notice_style = sprintf(
 	role="region"
 	aria-label="<?php esc_attr_e('Site announcement', 'notice'); ?>"
 	style="<?php echo esc_attr($notice_style); ?>"
+	data-notice-bar-id="<?php echo esc_attr($bar_id); ?>"
 	<?php if ($dismissible) : ?>
 		data-notice-dismissible="1"
 		data-notice-key="<?php echo esc_attr($storage_key); ?>"
