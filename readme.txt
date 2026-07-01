@@ -75,6 +75,11 @@ and the markup is plain HTML. There is no front-end JavaScript framework.
 
 Yes. The bar spans the viewport width and the dismiss control stays reachable on small screens.
 
+
+= Does this plugin work on WordPress Multisite? =
+
+Yes. This plugin is compatible with WordPress Multisite. Network activate it or activate it on individual sites; each site keeps its own settings and data.
+
 == Screenshots ==
 
 1. The announcement bar on a storefront.
